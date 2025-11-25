@@ -9,7 +9,7 @@
 
     class GoogleClient {
 
-        public readonly Client $client;
+        public Client $client;
         
         public userinfo $data;
 
@@ -61,6 +61,8 @@
 
             if(isset($_GET["code"])) {
 
+                $this->init();
+
                 $token = $this->client->fetchAccessTokenWithAuthCode($_GET["code"]);
 
                 $this->client->setAccessToken($token["access_token"]);
@@ -69,13 +71,10 @@
 
                 $this->data = $googleService->userinfo->get();
 
-                $link = $this->client->createAuthUrl();
-
                 return [
 
                     "status" => true,
-                    "data" => $this->data,
-                    "link" => $link
+                    "data" => $this->data
                 ];
 
             }
@@ -83,10 +82,17 @@
             return [
 
                 "status" => false,
-                "data" => "",
-                "link" => ""
+                "data" => ""
 
             ];
+
+        }
+
+        public function createAuthUrl() {
+
+            $link = $this->client->createAuthUrl();
+
+            return $link;
 
         }
         

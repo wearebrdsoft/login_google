@@ -38,7 +38,13 @@ GOOGLE_CREDENTIALS_JSON='{"type":"service_account","project_id":"...","private_k
 GOOGLE_REDIRECT_URI=http://localhost:8000/callback
 
 # Scopes da autenticação, em JSON (uma linha)
-GOOGLE_SCOPES='["email","profile","openid"]'
+GOOGLE_SCOPES='["email","profile"]'
+
+# ID do cliente no Google.
+GOOGLE_CLIENT_ID=seu_id_aqui
+
+# A chave secreta do cliente.
+GOOGLE_CLIENT_SECRET=seu_secret_aqui
 ```
 
 > Dica: caso `GOOGLE_CA_CERT_PATH` não seja definido, o Guzzle usará o certificado padrão do sistema.
@@ -51,30 +57,49 @@ GOOGLE_SCOPES='["email","profile","openid"]'
 ```php
 <?php
 
-use AuthenticationGoogle\Library\GoogleClient;
+    // PRIMEIRA PARTE -> Verificamos o link de redirecionamento e autorizamos a tela de login com o Google para o usuário.
 
-require "../vendor/autoload.php";
+    // Importamos a Biblioteca no arquivo.
+    use AuthenticationGoogle\Library\GoogleClient;
 
-// Cria a instância do cliente Google
-$googleClient = new GoogleClient();
+    // Criamos a instância do cliente Google.
+    $googleClient = new GoogleClient();
 
-// Inicializa o cliente com as variáveis de ambiente
-$googleClient->init();
+    // Inicializamos o cliente com as variáveis de ambiente.
+    $googleClient->init();
 
-// Verifica se o usuário já autorizou
-$authorized = $googleClient->authorized();
+    // Setamos em uma variável o Link para gerar a autenticação. Ao enviar esse link será retornardo um código.
+    $link = $googleClient->createAuthUrl();
 
-if ($authorized["status"]) {
+?>
 
-    echo "Usuário autorizado: ";
+<?php
 
-    print_r($authorized["data"]);
+    // SEGUNDA PARTE -> Apartir do link enviado obtemos os dados do usuário que realizou o login no Google.
 
-} else {
+    // Importamos a Biblioteca no arquivo.
+    use AuthenticationGoogle\Library\GoogleClient;
 
-    // Redireciona ou exibe link de autorização
+    // Criamos a instância do cliente Google.
+    $googleClient = new GoogleClient();
 
-    echo "Link de autorização: " . $authorized["link"];
-    
-}
+    // Verificamos se o usuário já autorizou.
+    $authorized = $googleClient->authorized();
+
+    // Caso o usuário esteja autorizado.
+    if($authorized["status"]) {
+
+        // Informamos na tela os dados do usuário enviados pelo Google.
+        echo "Usuário autorizado: ";
+        print_r($authorized["data"]);
+
+    // Caso o usuário não está autorizado.
+    } else {
+
+        // Retornarmos que o usuário não está autorizado.
+        echo "Usuário não autorizado!";
+        
+    }
+
+?>
 ```
